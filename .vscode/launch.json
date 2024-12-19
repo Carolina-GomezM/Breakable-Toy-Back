@@ -1,0 +1,21 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "BreakableToyApplication",
+      "request": "launch",
+      "mainClass": "main.java.breakable.toy.breakable_toy.BreakableToyApplication",
+      "projectName": "breakable_toy"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-BreakableToyApplication<breakable_toy>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "breakable.toy.breakable_toy.BreakableToyApplication",
+      "projectName": "breakable_toy",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}
