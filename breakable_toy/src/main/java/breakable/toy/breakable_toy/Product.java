@@ -2,6 +2,12 @@ package breakable.toy.breakable_toy;
 
 import java.time.LocalDate;
 
+import lombok.Builder;
+import lombok.Data;
+
+
+@Data
+@Builder
 public class Product {
     private int id;
     private String name;
@@ -11,18 +17,18 @@ public class Product {
     private LocalDate exp_date;
     private LocalDate creationDate;
     private LocalDate updDate;
-
+/* 
     public Product(int id, String name, String category, int stock, float price, LocalDate exp_date,
             LocalDate creationDate, LocalDate upddDate) {
         this.id = id;
         this.name = name;
         this.category = category;
         this.stock = stock;
-        this.price = price;
+/*         this.price = price;
         this.exp_date = exp_date;
         this.creationDate = creationDate;
         this.updDate = upddDate;
-    }
+    } */
 
     public int getID() {
         return id;
@@ -86,5 +92,5 @@ public class Product {
 
     public void setupdDate(LocalDate updDate) {
         this.updDate = updDate;
-    }
-}
+    } 
+} 

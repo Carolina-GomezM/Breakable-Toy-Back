@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductRepo {
 
-    public void addProduct(Product product);
+    public Product addProduct(Product product);
 
     List<Product> getAllProducts();
 

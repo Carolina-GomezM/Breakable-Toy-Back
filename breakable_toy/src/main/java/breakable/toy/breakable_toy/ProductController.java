@@ -28,7 +28,7 @@ public class ProductController {
     @PostMapping("/add")
     public ResponseEntity<Product> saveProduct(@RequestBody Product product) {
         this.productRepo.addProduct(product);
-        return ResponseEntity.ok(null);
+        return ResponseEntity.ok(product);
     }
 
     @GetMapping("/list")
@@ -47,6 +47,10 @@ public class ProductController {
 
         newProduct.setID(id);
         Product updated = productRepo.modifyProduct(id, newProduct);
+
+        if (updated == null){
+            return ResponseEntity.notFound().build();
+        }
 
         return ResponseEntity.ok(updated);
     }
@@ -77,13 +81,12 @@ public class ProductController {
     @PutMapping("/withStock/{id}")
     public ResponseEntity<String> putStock(@PathVariable int id) {
         Product existingProduct = productRepo.searchId(id);
-
         if (existingProduct == null) {
             return ResponseEntity.notFound().build();
         }
 
         this.productRepo.outOfStock(id);
-        return ResponseEntity.ok("Stock with 10");
+        return ResponseEntity.ok("Stock in 10");
     }
 
     @GetMapping("/search")
@@ -99,8 +102,8 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
-    @GetMapping("/hello")
-    public String sayHello() {
+    @GetMapping("/ping")
+    public String ping() {
         return "Hello World";
     }
 

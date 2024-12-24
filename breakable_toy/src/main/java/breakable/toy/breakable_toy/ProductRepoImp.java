@@ -15,11 +15,12 @@ public class ProductRepoImp implements ProductRepo {
     private AtomicInteger idCounter = new AtomicInteger(1);
 
     @Override
-    public void addProduct(Product product) {
+    public Product addProduct(Product product) {
         product.setID(idCounter.getAndIncrement());
         product.setCreationDate(LocalDate.now());
         product.setupdDate(null);
         this.productStorage.add(product);
+        return product;
     }
 
     @Override
@@ -34,7 +35,7 @@ public class ProductRepoImp implements ProductRepo {
 
     @Override
     public Product modifyProduct(int id, Product newProduct) {
-        for (Product product : productStorage) {
+        for (Product product : this.productStorage) {
             if (product.getID() == id) {
                 product.setName(newProduct.getName());
                 product.setCategory(newProduct.getCategory());
