@@ -21,6 +21,12 @@ public interface ProductRepo {
 
     public void withStock(int id);
 
-    List<Product> findByFilters(String name, String category, String availability);
+    List<Product> findByFilters(String name, List<String> category, String availability);
+
+    List<String> obtainCategories();
+
+    List<Reports> obtainReports(); 
+
+    
 
 }

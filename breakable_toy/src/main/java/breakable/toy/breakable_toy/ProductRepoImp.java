@@ -3,7 +3,9 @@ package breakable.toy.breakable_toy;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -73,21 +75,74 @@ public class ProductRepoImp implements ProductRepo {
     }
 
     @Override
-    public List<Product> findByFilters(String name, String category, String availability) {
+    public List<Product> findByFilters(String name, List<String> category, String availability) {
         return this.productStorage.stream()
                 .filter(p -> name == null || p.getName().toLowerCase().contains(name.toLowerCase()))
-                .filter(p -> category == null || p.getCategory().equalsIgnoreCase(availability))
+                .filter(p -> category == null || !category.isEmpty() && category.stream().anyMatch(cat -> p.getCategory().toLowerCase().contains(cat.toLowerCase())))
                 .filter(p -> {
-                    if (availability == null || availability.equalsIgnoreCase("all")) {
+                    if (availability == null || availability.equalsIgnoreCase("All")) {
                         return true;
-                    } else if (availability.equalsIgnoreCase("In stock")) {
+                    } else if (availability.equalsIgnoreCase("in_stock")) {
                         return p.getStock() > 0;
-                    } else if (availability.equalsIgnoreCase("Out of stock")) {
-                        return p.getStock() < 0;
+                    } else if (availability.equalsIgnoreCase("out_of_stock")) {
+                        return p.getStock() <= 0;
                     }
                     return false;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> obtainCategories(){
+        return this.productStorage.stream().map(Product::getCategory).distinct().sorted().collect(Collectors.toList());
+
+    }
+
+    @Override
+    public List<Reports> obtainReports(){
+        Map<String, List<Product>> productsCategory = this.productStorage.stream().collect(Collectors.groupingBy(Product::getCategory));
+
+        List<Reports> categoryReports = new ArrayList<>();
+
+        double overallTotalValueInStock = 0;
+        long overallTotalProductsInStock = 0;
+        double overallTotalPriceInStock = 0;
+
+        for(Map.Entry<String, List<Product>> entry: productsCategory.entrySet()){
+            String category = entry.getKey();
+            List<Product> products = entry.getValue();
+
+            long totalProductsInStock = products.stream().mapToLong(Product::getStock).sum();
+            double totalValueInStock = products.stream().mapToDouble(p -> p.getPrice() * p.getStock()).sum();
+            double averagePriceInStock = totalValueInStock > 0 ? totalValueInStock/totalProductsInStock : 0;
+
+            Reports categoryReport = Reports.builder()
+                .category(category)
+                .totalProductsInStock(totalProductsInStock)
+                .totalValueInStock(totalValueInStock)
+                .averagePriceInStock(averagePriceInStock)
+                .build();
+
+            categoryReports.add(categoryReport);
+
+            overallTotalProductsInStock += totalProductsInStock;
+            overallTotalValueInStock += totalValueInStock;                
+
+        }
+
+        overallTotalPriceInStock = (overallTotalProductsInStock > 0) ? overallTotalValueInStock / overallTotalProductsInStock : 0;
+
+        Reports categoryReport = Reports.builder()
+        .category("Overall")
+        .totalProductsInStock(overallTotalProductsInStock)
+        .totalValueInStock(overallTotalValueInStock)
+        .averagePriceInStock(overallTotalPriceInStock)
+        .build();
+
+        categoryReports.add(categoryReport);
+
+        return categoryReports;
+
     }
 
 }

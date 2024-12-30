@@ -43,12 +43,12 @@ public class ProductControllerTests {
             .category("Fruits")
             .stock(20)
             .price(30.00f)
-            .exp_date(LocalDate.of(2024, 12, 23))
+            .expDate(LocalDate.of(2024, 12, 23))
             .build();
 
         products = new ArrayList<>();
-            products.add(Product.builder().id(0).name("Banana").category("Fruits").stock(20).price(30.00f).exp_date(LocalDate.of(2024, 12, 23)).build());
-            products.add(Product.builder().id(1).name("Apple").category("Fruits").stock(15).price(25.00f).exp_date(LocalDate.of(2024, 12, 20)).build());
+            products.add(Product.builder().id(0).name("Banana").category("Fruits").stock(20).price(30.00f).expDate(LocalDate.of(2024, 12, 23)).build());
+            products.add(Product.builder().id(1).name("Apple").category("Fruits").stock(15).price(25.00f).expDate(LocalDate.of(2024, 12, 20)).build());
     }
 
     @Test
@@ -63,22 +63,23 @@ public class ProductControllerTests {
             "category": "Fruits",
             "stock": 20,
             "price": 30.00,
-            "exp_date": "2024-12-23"
+            "expDate": "2024-12-23"
         }
         """;
 
         // Realizar la solicitud POST usando MockMvc
-        mockMvc.perform(post("/product/add")
+        mockMvc.perform(post("/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
-            .andExpect(status().isOk()); // Verifica que la respuesta tenga el código de estado 200 OK
+            .andExpect(status().isOk()) // Verifica que la respuesta tenga el código de estado 200 OK
+             .andExpect(jsonPath("$.expDate").value("2024-12-23")); 
     }
 
     @Test
     void testFindProducts() throws Exception{
         Mockito.when(productRepoImp.findByFilters("Banana", null, null)).thenReturn(products);
 
-        mockMvc.perform(get("/product/search")
+        mockMvc.perform(get("/products")
         .param("name", "Banana"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[0].name").value("Banana"));
@@ -86,13 +87,13 @@ public class ProductControllerTests {
 
     @Test
     void testFindProductsNoResults() throws Exception{
-        Mockito.when(productRepoImp.findByFilters("Banana", "Fruits", "In Stock")).thenReturn(Collections.emptyList());
+        Mockito.when(productRepoImp.findByFilters("Banana", new ArrayList<String>(), "In Stock")).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/product/search")
+        mockMvc.perform(get("/products")
         .param("name", "Banana")
         .param("category", "Fruits")
         .param("availability", "In Stock"))
-        .andExpect(status().isNotFound());
+        .andExpect(status().isOk());
     }
 
     @Test
@@ -104,7 +105,7 @@ public class ProductControllerTests {
         .category("Fruits")
         .stock(10)
         .price(15.00f)
-        .exp_date(LocalDate.of(2024, 12, 23))
+        .expDate(LocalDate.of(2024, 12, 23))
         .build();
 
 
@@ -118,11 +119,11 @@ public class ProductControllerTests {
                     "category": "Fruits",
                     "stock": 10,
                     "price": 15.00,
-                    "exp_date": "2024-12-23"
+                    "expDate": "2024-12-23"
                 }
                 """;
 
-                mockMvc.perform(put("/product/update/{id}", 1)
+                mockMvc.perform(put("/products/{id}", 1)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
             .andDo(result -> System.out.println("Response: " + result.getResponse().getContentAsString()))
@@ -136,9 +137,8 @@ public class ProductControllerTests {
     void testDeleteProduct() throws Exception{
         Mockito.when(productRepoImp.deleteProduct(1)).thenReturn(true);
 
-        mockMvc.perform(delete("/product/delete/{id}", 1))
-        .andExpect(status().isOk())
-        .andExpect(content().string("The product has been removed."));
+        mockMvc.perform(delete("/products/{id}", 1))
+        .andExpect(status().isOk());
 
         Mockito.verify(productRepoImp).deleteProduct(1);
     }
@@ -148,9 +148,8 @@ public class ProductControllerTests {
         Mockito.when(productRepoImp.searchId(1)).thenReturn(product);
         Mockito.doNothing().when(productRepoImp).outOfStock(1);
 
-        mockMvc.perform(put("/product/outOfStock/{id}",1))
-        .andExpect(status().isOk())
-        .andExpect(content().string("Stock in 0"));
+        mockMvc.perform(post("/products/{id}/outofstock",1))
+        .andExpect(status().isOk());
 
         Mockito.verify(productRepoImp).searchId(1);
         Mockito.verify(productRepoImp).outOfStock(1);
@@ -161,12 +160,10 @@ public class ProductControllerTests {
         Mockito.when(productRepoImp.searchId(1)).thenReturn(product);
         Mockito.doNothing().when(productRepoImp).outOfStock(1);
 
-        mockMvc.perform(put("/product/withStock/{id}",1))
-        .andExpect(status().isOk())
-        .andExpect(content().string("Stock in 10"));
+        mockMvc.perform(put("/products/{id}/instock",1))
+        .andExpect(status().isOk());
 
         Mockito.verify(productRepoImp).searchId(1);
-        Mockito.verify(productRepoImp).outOfStock(1);
     }
 }
 

@@ -14,18 +14,18 @@ public class Product {
     private String category;
     private int stock;
     private float price;
-    private LocalDate exp_date;
+    private LocalDate expDate;
     private LocalDate creationDate;
     private LocalDate updDate;
 /* 
-    public Product(int id, String name, String category, int stock, float price, LocalDate exp_date,
+    public Product(int id, String name, String category, int stock, float price, LocalDate expDate,
             LocalDate creationDate, LocalDate upddDate) {
         this.id = id;
         this.name = name;
         this.category = category;
         this.stock = stock;
 /*         this.price = price;
-        this.exp_date = exp_date;
+        this.expDate = expDate;
         this.creationDate = creationDate;
         this.updDate = upddDate;
     } */
@@ -71,11 +71,11 @@ public class Product {
     }
 
     public LocalDate getExpDate() {
-        return exp_date;
+        return expDate;
     }
 
-    public void setExpDate(LocalDate exp_date) {
-        this.exp_date = exp_date;
+    public void setExpDate(LocalDate expDate) {
+        this.expDate = expDate;
     }
 
     public LocalDate getCreationDate() {
