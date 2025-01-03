@@ -38,7 +38,7 @@ public class ProductControllerTests {
     @BeforeEach
     void setUp() {
         product = Product.builder()
-            .id(1)
+            .ID(1)
             .name("Banana")
             .category("Fruits")
             .stock(20)
@@ -47,8 +47,8 @@ public class ProductControllerTests {
             .build();
 
         products = new ArrayList<>();
-            products.add(Product.builder().id(0).name("Banana").category("Fruits").stock(20).price(30.00f).expDate(LocalDate.of(2024, 12, 23)).build());
-            products.add(Product.builder().id(1).name("Apple").category("Fruits").stock(15).price(25.00f).expDate(LocalDate.of(2024, 12, 20)).build());
+            products.add(Product.builder().ID(0).name("Banana").category("Fruits").stock(20).price(30.00f).expDate(LocalDate.of(2024, 12, 23)).build());
+            products.add(Product.builder().ID(1).name("Apple").category("Fruits").stock(15).price(25.00f).expDate(LocalDate.of(2024, 12, 20)).build());
     }
 
     @Test
@@ -100,7 +100,7 @@ public class ProductControllerTests {
     void testUpdateProduct() throws Exception{
 
         Product updatedProduct = Product.builder()
-        .id(1)
+        .ID(1)
         .name("Watermelon")
         .category("Fruits")
         .stock(10)

@@ -12,6 +12,4 @@ public class Reports {
     private double totalValueInStock;
     private double averagePriceInStock;
 
-
-
 }

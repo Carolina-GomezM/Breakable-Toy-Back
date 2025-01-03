@@ -107,9 +107,6 @@ public class ProductController {
     @GetMapping("/categories")
     public ResponseEntity<List<String>> allCategories(){
         List <String> categories = productRepo.obtainCategories();
-        if(categories.isEmpty()){
-            return ResponseEntity.status(404).body(null);
-        }
         return ResponseEntity.ok(categories);
     }
 

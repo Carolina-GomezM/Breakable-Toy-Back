@@ -20,7 +20,7 @@ public class ProductRepoImp implements ProductRepo {
     public Product addProduct(Product product) {
         product.setID(idCounter.getAndIncrement());
         product.setCreationDate(LocalDate.now());
-        product.setupdDate(null);
+        product.setUpdDate(null);
         this.productStorage.add(product);
         return product;
     }
@@ -44,7 +44,7 @@ public class ProductRepoImp implements ProductRepo {
                 product.setStock(newProduct.getStock());
                 product.setPrice(newProduct.getPrice());
                 product.setExpDate(newProduct.getExpDate());
-                product.setupdDate(LocalDate.now());
+                product.setUpdDate(LocalDate.now());
                 return product;
             }
         }
@@ -78,7 +78,8 @@ public class ProductRepoImp implements ProductRepo {
     public List<Product> findByFilters(String name, List<String> category, String availability) {
         return this.productStorage.stream()
                 .filter(p -> name == null || p.getName().toLowerCase().contains(name.toLowerCase()))
-                .filter(p -> category == null || !category.isEmpty() && category.stream().anyMatch(cat -> p.getCategory().toLowerCase().contains(cat.toLowerCase())))
+                .filter(p -> category == null || category.size() == 0 ||
+                (!category.isEmpty() && category.stream().anyMatch(cat -> p.getCategory().equalsIgnoreCase(cat))))                
                 .filter(p -> {
                     if (availability == null || availability.equalsIgnoreCase("All")) {
                         return true;
