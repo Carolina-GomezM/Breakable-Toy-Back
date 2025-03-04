@@ -22,11 +22,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = BreakableToyApplication.class)
-@AutoConfigureMockMvc // Asegúrate de incluir esta anotación para configurar MockMvc automáticamente
+@AutoConfigureMockMvc 
 public class ProductControllerTests {
 
     @Autowired
-    private MockMvc mockMvc;  // Spring Boot lo inyecta automáticamente
+    private MockMvc mockMvc; 
 
     @MockBean
     private ProductRepoImp productRepoImp;
@@ -56,7 +56,7 @@ public class ProductControllerTests {
         // Mock del repositorio, se simula la respuesta del método addProduct
         Mockito.when(productRepoImp.addProduct(Mockito.any(Product.class))).thenReturn(product);
 
-        // Crear el JSON para enviar
+        
         String requestBody = """
         {
             "name": "Banana",
@@ -67,11 +67,11 @@ public class ProductControllerTests {
         }
         """;
 
-        // Realizar la solicitud POST usando MockMvc
+        
         mockMvc.perform(post("/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
-            .andExpect(status().isOk()) // Verifica que la respuesta tenga el código de estado 200 OK
+            .andExpect(status().isOk()) 
              .andExpect(jsonPath("$.expDate").value("2024-12-23")); 
     }
 
