@@ -2,6 +2,8 @@ package breakable.toy.breakable_toy;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,18 +19,115 @@ public class ProductRepoImp implements ProductRepo {
     private AtomicInteger idCounter = new AtomicInteger(1);
 
     @Override
-    public Product addProduct(Product product) {
+    public synchronized Product addProduct(Product product) {
         product.setID(idCounter.getAndIncrement());
         product.setCreationDate(LocalDate.now());
         product.setUpdDate(null);
         this.productStorage.add(product);
         return product;
     }
+    private void validatePagination(int page, int size) {
+        if (page < 0) {
+            throw new IllegalArgumentException("Page number must be non-negative");
+        }
+        if (size <= 0) {
+            throw new IllegalArgumentException("Page size must be greater than 0");
+        }
+    }
+
+    @Override
+    public List<Product> getAllProductsSorted(String primarySort, String secondarySort, 
+                                            String primaryOrder, String secondaryOrder,
+                                            int page, int size) {
+        validatePagination(page, size);
+    
+        // Crear comparador compuesto
+        Comparator<Product> comparator = buildComparator(primarySort, secondarySort, primaryOrder, secondaryOrder);
+    
+        // Aplicar ordenamiento
+        List<Product> sortedProducts = productStorage.stream()
+                .sorted(comparator)
+                .collect(Collectors.toList());
+    
+        // Aplicar paginación
+        return paginateList(sortedProducts, page, size);
+    }
+    
+    private Comparator<Product> buildComparator(String primarySort, String secondarySort,
+                                             String primaryOrder, String secondaryOrder) {
+        Comparator<Product> comparator = (a, b) -> 0;
+        
+        if (primarySort != null && !primarySort.isEmpty()) {
+            comparator = comparator.thenComparing(getComparator(primarySort, primaryOrder));
+        }
+        
+        if (secondarySort != null && !secondarySort.isEmpty()) {
+            comparator = comparator.thenComparing(getComparator(secondarySort, secondaryOrder));
+        }
+        
+        return comparator;
+    }
+    
+    private List<Product> paginateList(List<Product> list, int page, int size) {
+        int start = page * size;
+        if (start >= list.size()) {
+            return Collections.emptyList();
+        }
+        
+        int end = Math.min(start + size, list.size());
+        return list.subList(start, end);
+    }
+    
+@Override
+    public long getTotalProducts() {
+        return productStorage.size();
+    }
+
+    private Comparator<Product> getComparator(String sortBy, String order) {
+        // Si sortBy es null o vacío, retorna un comparador neutral
+        if (sortBy == null || sortBy.isEmpty()) {
+            return (a, b) -> 0;
+        }
+    
+        // Validar que el campo de ordenamiento exista en la clase Product
+        try {
+            Product.class.getDeclaredField(sortBy);
+        } catch (NoSuchFieldException e) {
+            throw new IllegalArgumentException("Invalid sort column: " + sortBy);
+        }
+    
+        Comparator<Product> comparator;
+        switch (sortBy) {
+            case "name":
+                comparator = Comparator.comparing(Product::getName);
+                break;
+            case "category":
+                comparator = Comparator.comparing(Product::getCategory);
+                break;
+            case "price":
+                comparator = Comparator.comparing(Product::getPrice);
+                break;
+            case "expDate":
+                comparator = Comparator.comparing(Product::getExpDate);
+                break;
+            case "stock":
+                comparator = Comparator.comparing(Product::getStock);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid sort column: " + sortBy);
+        }
+    
+        return "desc".equalsIgnoreCase(order) ? comparator.reversed() : comparator;
+    }
+
+    
 
     @Override
     public List<Product> getAllProducts() {
         return new ArrayList<>(this.productStorage);
     }
+
+
 
     @Override
     public Product searchId(int id) {
@@ -52,7 +151,7 @@ public class ProductRepoImp implements ProductRepo {
     }
 
     @Override
-    public Boolean deleteProduct(int id) {
+    public synchronized Boolean deleteProduct(int id) {
         return this.productStorage.removeIf(product -> product.getID() == id);
     }
 
@@ -145,5 +244,7 @@ public class ProductRepoImp implements ProductRepo {
         return categoryReports;
 
     }
+
+    
 
 }

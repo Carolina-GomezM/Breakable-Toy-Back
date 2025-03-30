@@ -1,5 +1,6 @@
 package breakable.toy.breakable_toy;
 
+import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,6 +74,8 @@ public class ProductControllerTests {
                 .content(requestBody))
             .andExpect(status().isOk()) // Verifica que la respuesta tenga el código de estado 200 OK
              .andExpect(jsonPath("$.expDate").value("2024-12-23")); 
+        
+        Mockito.verify(productRepoImp).addProduct(Mockito.any(Product.class));
     }
 
     @Test
@@ -83,6 +86,7 @@ public class ProductControllerTests {
         .param("name", "Banana"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[0].name").value("Banana"));
+        Mockito.verify(productRepoImp).findByFilters("Banana", null, null);
     }
 
     @Test
@@ -131,6 +135,8 @@ public class ProductControllerTests {
             .andExpect(jsonPath("$.name").value("Watermelon"))
             .andExpect(jsonPath("$.stock").value(10))
             .andExpect(jsonPath("$.price").value(15.00));
+        Mockito.verify(productRepoImp).searchId(1);
+        Mockito.verify(productRepoImp).modifyProduct(1, updatedProduct);
     }
 
     @Test
@@ -164,6 +170,45 @@ public class ProductControllerTests {
         .andExpect(status().isOk());
 
         Mockito.verify(productRepoImp).searchId(1);
+    }
+
+    @Test
+void shouldReturnEmptyListWhenNoProductsFound() throws Exception {
+    Mockito.when(productRepoImp.findByFilters(Mockito.anyString(), Mockito.anyList(), Mockito.anyString()))
+        .thenReturn(Collections.emptyList());
+
+    mockMvc.perform(get("/products").param("name", "NonExistentProduct"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(0));
+}
+
+@Test
+void shouldReturnBadRequestForInvalidInput() throws Exception {
+    String invalidRequestBody = """
+    {
+        "name": "",
+        "category": "Fruits",
+        "stock": -10,
+        "price": -5.00,
+        "expDate": "invalid-date"
+    }
+    """;
+
+    mockMvc.perform(post("/products")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(invalidRequestBody))
+        .andExpect(status().isBadRequest());
+}
+
+    @Test
+    void shouldReturnNotFoundWhenProductDoesNotExist() throws Exception {
+        Mockito.when(productRepoImp.searchId(999)).thenReturn(null);
+
+        mockMvc.perform(get("/products/{id}", 999))
+            .andExpect(status().isNotFound())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.message").value("Product not found"));
+        Mockito.verify(productRepoImp).searchId(999);
     }
 }
 

@@ -27,6 +27,7 @@ public interface ProductRepo {
 
     List<Reports> obtainReports(); 
 
-    
+    List<Product> getAllProductsSorted(String primarySort, String secondarySort, String primaryOrder, String secondaryOrder, int page, int size);
 
+    public long getTotalProducts();
 }
