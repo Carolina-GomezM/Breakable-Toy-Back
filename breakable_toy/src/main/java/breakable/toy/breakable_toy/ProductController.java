@@ -131,16 +131,13 @@ public class ProductController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
         
-        // Validar parámetros de orden
         validateSortParameters(primarySort, primaryOrder);
         validateSortParameters(secondarySort, secondaryOrder);
         
-        // Obtener datos
         List<Product> products = productRepo.getAllProductsSorted(
             primarySort, secondarySort, primaryOrder, secondaryOrder, page, size);
         long total = productRepo.getTotalProducts();
         
-        // Preparar respuesta
         Map<String, Object> response = new HashMap<>();
         response.put("data", products);
         response.put("total", total);

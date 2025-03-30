@@ -1,12 +1,10 @@
 package breakable.toy.breakable_toy;
 
-import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -20,14 +18,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT, classes = BreakableToyApplication.class)
-@AutoConfigureMockMvc // Asegúrate de incluir esta anotación para configurar MockMvc automáticamente
+@AutoConfigureMockMvc 
 public class ProductControllerTests {
 
     @Autowired
-    private MockMvc mockMvc;  // Spring Boot lo inyecta automáticamente
+    private MockMvc mockMvc; 
 
     @MockBean
     private ProductRepoImp productRepoImp;
@@ -54,10 +51,8 @@ public class ProductControllerTests {
 
     @Test
     void testSaveProduct() throws Exception {
-        // Mock del repositorio, se simula la respuesta del método addProduct
         Mockito.when(productRepoImp.addProduct(Mockito.any(Product.class))).thenReturn(product);
 
-        // Crear el JSON para enviar
         String requestBody = """
         {
             "name": "Banana",
@@ -68,11 +63,10 @@ public class ProductControllerTests {
         }
         """;
 
-        // Realizar la solicitud POST usando MockMvc
         mockMvc.perform(post("/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
-            .andExpect(status().isOk()) // Verifica que la respuesta tenga el código de estado 200 OK
+            .andExpect(status().isOk()) 
              .andExpect(jsonPath("$.expDate").value("2024-12-23")); 
         
         Mockito.verify(productRepoImp).addProduct(Mockito.any(Product.class));

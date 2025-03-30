@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
@@ -41,15 +40,12 @@ public class ProductRepoImp implements ProductRepo {
                                             int page, int size) {
         validatePagination(page, size);
     
-        // Crear comparador compuesto
         Comparator<Product> comparator = buildComparator(primarySort, secondarySort, primaryOrder, secondaryOrder);
     
-        // Aplicar ordenamiento
         List<Product> sortedProducts = productStorage.stream()
                 .sorted(comparator)
                 .collect(Collectors.toList());
     
-        // Aplicar paginación
         return paginateList(sortedProducts, page, size);
     }
     
@@ -84,12 +80,10 @@ public class ProductRepoImp implements ProductRepo {
     }
 
     private Comparator<Product> getComparator(String sortBy, String order) {
-        // Si sortBy es null o vacío, retorna un comparador neutral
         if (sortBy == null || sortBy.isEmpty()) {
             return (a, b) -> 0;
         }
     
-        // Validar que el campo de ordenamiento exista en la clase Product
         try {
             Product.class.getDeclaredField(sortBy);
         } catch (NoSuchFieldException e) {
